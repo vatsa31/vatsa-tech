@@ -2,7 +2,8 @@ type Project = {
   name: string
   description: string
   link: string
-  video: string
+  video?: string
+  details: string
   id: string
 }
 
@@ -48,7 +49,24 @@ type SocialLink = {
 // ]
 //
 
-export const PROJECTS: Project[] = []
+export const PROJECTS: Project[] = [
+  {
+    name: 'create-pn-react-express',
+    description: 'A npm package',
+    details:
+      'A npm package for creating a monorepo for React app using Vite and Typescript using Turborepo. Also creates a proper folder structure.',
+    link: 'https://www.npmjs.com/package/create-pn-react-express',
+    id: 'project-1',
+  },
+  {
+    name: 'create-nx-react-express-workspace',
+    description: 'A npm package',
+    details:
+      'A npm package for creating a monorepo for React with Express using NX',
+    link: 'https://www.npmjs.com/package/create-nx-react-express-workspace',
+    id: 'project-2',
+  },
+]
 
 export const WORK_EXPERIENCE: WorkExperience[] = [
   {
