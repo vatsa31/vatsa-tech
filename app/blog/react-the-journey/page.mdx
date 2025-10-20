@@ -1,0 +1,165 @@
+export const metadata = {
+    title: 'From React Code to Browser: The Journey Simplified',
+    description: 'My take on the React lifecycle',
+    authors: [{ name: 'Shrivatsa Kulkarni', url: '#' }],
+}
+
+# From React Code to Browser: The Journey Simplified
+
+### Begin
+
+A developer writes hundreds of lines of React and TypeScript — carefully typed, neatly organized, sprinkled with just the right amount of prop drilling and context magic.
+Then, one build command later, everything vanishes into a folder named `dist/`.
+
+Inside it sits a handful of mysterious files like `app.a9d5313.js` and `vendor.91f4ce.css`, each only a few kilobytes in size.
+
+All those types, components, and imports — reduced to a minified blob of JavaScript that somehow still works perfectly in the browser.
+
+![reduced-to-atoms](https://preview.redd.it/z0qllfetn9161.png?width=640&crop=smart&auto=webp&s=7629d4de707f8908867a5a6a40fb391029bb6734)
+
+What actually happens between writing App.tsx and that final bundle is a fascinating chain of transformations — equal parts engineering and sorcery.
+This post traces that journey, step by step, through the modern React build process.
+
+# **1. Write Code in .ts / .tsx 🧑‍💻**
+
+Everything in a modern React app starts here — TypeScript or TSX files that describe your UI.
+TypeScript helps catch type errors early, while JSX makes your UI expressive and declarative.
+
+These files aren’t directly understood by browsers, so they’ll first need to be converted into standard JavaScript.
+
+---
+
+# **So what Happens to the Types We Write? 🧩**
+
+All those interface, type, and Props definitions you spend time writing?
+They don’t exist at runtime — TypeScript’s type system is completely erased during the build step.
+
+When the compiler (or bundler) transpiles your .ts or .tsx files, it:
+
+- Removes every type annotation and interface
+
+- Replaces import type and export type with nothing
+
+- Leaves behind only plain JavaScript logic
+
+The result is zero type overhead in production — the browser never even knows TypeScript was used.
+TypeScript is purely a developer-time tool that ensures safety, autocompletion, and maintainability, not something shipped to users.
+
+---
+
+## **2. Convert Everything to JavaScript 🔁**
+
+This step is known as ***transpilation***.
+Your TypeScript code goes through tools like esbuild, SWC, or Babel, which:
+
+- Strip away TypeScript types (since the browser doesn’t use them)
+
+- Convert JSX into valid JavaScript calls (e.g., jsx or React.createElement)
+
+- Optionally apply optimizations or compatibility transforms
+
+After this step, we’re left with clean, browser-readable JavaScript — no types, no TS syntax.
+
+
+## **3. Vite Starts from index.html and Follows Every Import ⚙️**
+
+Vite acts as the entry point resolver and module graph builder.
+It starts from your `index.html` → finds `main.tsx` → follows every import down the dependency tree.
+
+In development, Vite serves each module individually (for fast hot reloads).
+But in production, it uses Rollup to bundle them together.
+
+## **4. Tree Shaking 🌳**
+
+Now that Vite knows which modules are actually used, it performs `tree-shaking` — removing any unused code and imports.
+
+This relies on ES Modules’ static structure to safely eliminate dead code.
+For example, if you imported a utility function but never called it, it’s gone.
+(Though this problem can be solved during development using [eslint plugins](https://www.npmjs.com/package/eslint-plugin-unused-imports))
+
+Tree shaking = leaner bundles = faster load times.
+
+## **5. Bundling (Code Splitting & Lazy Loading) 📦**
+
+Next comes bundling — combining related modules into optimized chunks.
+
+Vite/Rollup groups code intelligently:
+
+- ***App chunks***: your React components and logic
+
+- ***Vendor chunks***: third-party libraries like react, react-dom, etc.
+
+With code splitting, each chunk can load lazily — meaning the browser only fetches what it needs when it needs it.
+This improves first-load performance dramatically.
+
+## **6. Minification ✂️**
+
+Once bundled, the JS code gets minified.
+This step removes anything unnecessary:
+
+- Whitespace and comments
+
+- Long variable names → shortened to single letters
+
+- Unused branches (like if (process.env.NODE_ENV !== 'production'))
+
+Minification doesn’t change behavior — it just makes the payload smaller and faster to download.
+
+## **7. CSS & Asset Processing 🎨**
+
+Your CSS goes through a similar optimization pipeline:
+
+- CSS is Extracted, deduplicated, and minified
+
+- Processed by PostCSS (for autoprefixing, Tailwind, etc.)
+
+- Images and fonts can be inlined as data URLs or emitted as separate optimized files
+
+This ensures styles and assets load quickly and efficiently.
+
+## **8. Hashing Files 🧩**
+
+Each generated file (JS, CSS, etc.) gets a content hash — like `app.a9d5313.js`.
+
+Why?
+Because if your code doesn’t change, the hash stays the same, allowing CDNs to cache aggressively.
+When you push a new build,
+
+*new content* = *new hash* = *instant cache busting*.
+
+This is a best practice for long-term caching and version safety.
+
+## **9. Output to /dist 🚀**
+
+Finally, everything lands in the dist/ folder:
+
+- `index.html` updated to point to the hashed assets
+
+- JavaScript chunks, CSS, and images neatly organized
+
+This is the **production build**, ready to be hosted on any static server or CDN.
+
+---
+
+## **Compression (Server/CDN Level) 🗜️**
+
+Once deployed, most servers automatically serve compressed versions (like Gzip or Brotli).
+This step isn’t handled by React or Vite — it’s a network-level optimization handled by CDNs.
+
+*compressed payloads* = *faster downloads* = *happier users*.
+
+---
+
+🧠 TL;DR
+
+Here’s the full journey summarized:
+
+
+***.ts/.tsx → Transpile → Bundle → Tree-shake → Split → Minify → Process CSS → Hash → Output to dist → Compress → Serve***
+
+## **Final Thoughts 💬**
+
+Well, there was always a bit of curiosity about how the code written in React eventually ends up running in the browser. That question lingered long enough to spark a small deep dive into the build process. The result is this simplified breakdown of what actually happens behind the scenes — from .tsx files to the final bundle.
+Maybe the next one will explore how HMR manages to make all of it feel instant.
+
+### End

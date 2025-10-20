@@ -94,24 +94,36 @@ export const WORK_EXPERIENCE: WorkExperience[] = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    title: 'From React Code to Browser: The Journey Simplified',
+    description: 'My take on the React lifecycle',
+    link: '/blog/react-the-journey',
+    uid: 'blog-1',
+  },
+  {
+    title: 'Hot Module Replacement (HMR): One Click Update',
+    description: 'How HMR powers faster development',
+    link: '/blog/hmr-one-click-update',
+    uid: 'blog-2',
+  },
+  {
     title: 'Exploring the Finite State Machine design pattern',
     description:
       'How FSM architecture can be used to handle Offline Audio Upload',
     link: '/blog/fsm-design-pattern',
-    uid: 'blog-1',
+    uid: 'blog-3',
   },
   {
     title: 'My take on the current job market',
     description:
       'A deep dive into my thoughts on where frontend development is headed',
     link: '/blog/take-on-current-job-market',
-    uid: 'blog-2',
+    uid: 'blog-4',
   },
   {
     title: 'How AI impacts the state of frontend development',
     description: 'My take on the impact of AI on frontend development',
     link: '/blog/ai-impacts-fe-development',
-    uid: 'blog-3',
+    uid: 'blog-5',
   },
 ]
 
