@@ -72,7 +72,7 @@ export const WORK_EXPERIENCE: WorkExperience[] = [
   {
     company: 'Suki',
     title: 'Software Engineer - II',
-    start: '2024',
+    start: '2025',
     end: 'Present',
     id: 'work3',
   },
@@ -80,7 +80,7 @@ export const WORK_EXPERIENCE: WorkExperience[] = [
     company: 'Suki',
     title: 'Software Engineer - I',
     start: '2023',
-    end: '2024',
+    end: '2025',
     id: 'work2',
   },
   {
