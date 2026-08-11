@@ -30,3 +30,23 @@
   --sh-property: #73daca;
   --sh-entity: #e0af68;
 }
+
+@media (hover: hover) and (pointer: fine) {
+  .social-link-arrow {
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .group:hover .social-link-arrow {
+    transform: translate(1px, -1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-link-arrow {
+    transition: none;
+  }
+
+  .group:hover .social-link-arrow {
+    transform: none;
+  }
+}

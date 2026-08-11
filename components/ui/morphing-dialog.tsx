@@ -15,6 +15,7 @@ import {
   MotionConfig,
   Transition,
   Variant,
+  useReducedMotion,
 } from 'motion/react'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
@@ -98,6 +99,7 @@ function MorphingDialogTrigger({
   triggerRef,
 }: MorphingDialogTriggerProps) {
   const { setIsOpen, isOpen, uniqueId } = useMorphingDialog()
+  const shouldReduceMotion = useReducedMotion()
 
   const handleClick = useCallback(() => {
     setIsOpen(!isOpen)
@@ -126,6 +128,10 @@ function MorphingDialogTrigger({
       aria-expanded={isOpen}
       aria-controls={`motion-ui-morphing-dialog-content-${uniqueId}`}
       aria-label={`Open dialog ${uniqueId}`}
+      whileTap={{
+        scale: shouldReduceMotion ? 0.99 : 0.97,
+        transition: { type: 'spring', bounce: 0, duration: 0.16 },
+      }}
     >
       {children}
     </motion.div>
