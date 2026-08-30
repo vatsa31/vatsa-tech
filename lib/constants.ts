@@ -1,1 +1,5 @@
-export const WEBSITE_URL = 'https://vatsa-tech.vercel.app'
+export const WEBSITE_URL = 'https://shrivatsa.dev'
+
+export const NAME = 'Shrivatsa Kashyap'
+
+export const EMAIL = 'shrivatsakulkarni31@gmail.com'

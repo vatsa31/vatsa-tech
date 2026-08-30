@@ -1,36 +1,57 @@
 'use client'
-import { TextEffect } from '@/components/ui/text-effect'
-import Link from 'next/link'
 
-const SUKI_URL = 'https://www.suki.ai'
+import Link from 'next/link'
+import { MoonIcon, SunIcon } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
+
+function ThemeToggle() {
+  const [mounted, setMounted] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="h-8 w-8" aria-hidden="true" />
+    )
+  }
+
+  const isDark = resolvedTheme === 'dark'
+
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+      className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors duration-200 hover:bg-sheet hover:text-foreground"
+    >
+      {isDark ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
+    </button>
+  )
+}
 
 export function Header() {
   return (
-    <header className="mb-8 flex items-center justify-between">
-      <div>
-        <Link href="/" className="font-medium text-black dark:text-white">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-line bg-paper/80 backdrop-blur-md">
+      <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-6 sm:px-8">
+        <Link
+          href="/"
+          className="text-sm font-medium tracking-tight text-foreground transition-colors hover:text-muted"
+        >
           Shrivatsa Kashyap
         </Link>
-        <TextEffect
-          as="p"
-          preset="fade"
-          per="char"
-          className="text-zinc-600 underline underline-offset-2 dark:text-zinc-500"
-          delay={0.2}
-        >
-          Software Engineer - II
-        </TextEffect>
-        <Link href={SUKI_URL} className="w-fit">
-          <TextEffect
-            as="p"
-            preset="fade"
-            per="char"
-            className="w-fit text-zinc-600 dark:text-zinc-500"
-            delay={0.2}
+        <nav className="flex items-center gap-5">
+          <Link
+            href="/writing"
+            className="text-sm text-muted transition-colors hover:text-foreground"
           >
-            Suki
-          </TextEffect>
-        </Link>
+            Writing
+          </Link>
+          <ThemeToggle />
+        </nav>
       </div>
     </header>
   )

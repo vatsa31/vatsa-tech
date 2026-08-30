@@ -1,0 +1,113 @@
+export const metadata = {
+  title: 'An internal support platform, modernized',
+  description:
+    'Migrating a CRM-style internal tool used by ~300 employees off a legacy frontend - typed React, a shared-package monorepo, and multi-environment delivery.',
+}
+
+<CaseHeader
+  index="02"
+  context="Suki · Production"
+  period="2024 - 2025"
+  title="An internal support platform, modernized"
+  summary="~300 employees run their daily support workflows on an internal CRM-style platform. The legacy frontend was slow to change and painful to extend - so we rebuilt it as a typed React application on a shared-package monorepo, with delivery the team could actually control."
+  tags={['React', 'TypeScript', 'Vite', 'Turborepo', 'CI/CD']}
+/>
+
+<MetricBand
+  items={[
+    { value: '~300', label: 'employees on the platform daily' },
+    { value: '1', label: 'legacy frontend migrated out' },
+    { value: '3', label: 'environments promoted: dev → staging → prod' },
+    { value: '3', label: 'shared packages feeding the app' },
+  ]}
+/>
+
+<CaseSection n="01" title="Problem">
+  Support agents lived inside a tool with a verbose, hard-to-change UI and a
+  release process that made every improvement an event. Adding a new field to
+  a ticket meant touching a monolithic surface, testing by hand, and holding
+  your breath on deploy. The platform was becoming the bottleneck for the
+  team it was supposed to serve.
+</CaseSection>
+
+<CaseSection n="02" title="Constraints">
+  <CaseList
+    items={[
+      'The tool is work, not software. Agents cannot stop working while we migrate - every day it is down is lost support throughput.',
+      'The workflows are specific and deeply established: queues, statuses, escalations, notes, attachments, and integrations that agents muscle-memory.',
+      'No downtime and no long rewrite. A greenfield "we\u2019ll port it all later" plan was dead on arrival.',
+      'A small team. The migration had to be sequenced so each increment shipped value instead of accumulating risk.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="03" title="My responsibility">
+  I led the frontend side of the modernization - the application architecture,
+  the migration sequence, and the day-to-day iteration with the Tech Support
+  team who would live in the result.
+  <CaseGrid
+    rows={[
+      { k: 'Architecture', v: 'React + Vite application on a TypeScript monorepo, with packages carved around stable seams: UI primitives, a typed API client, and shared core config.' },
+      { k: 'Migration', v: 'Strangler-style, workflow by workflow - agents used both surfaces during the transition and switched over as parity landed.' },
+      { k: 'Delivery', v: 'Multi-environment CI/CD - typecheck, lint, test, and build gate every promotion to dev, staging, and production.' },
+      { k: 'Product loop', v: 'Direct, repeated sessions with the agents using the tool - turning their friction into tickets, and shipping fixes to them.' },
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="04" title="Architecture">
+  <SupportPlatformDiagram />
+  The application depends on packages, not the other way around. The API
+  client is the interesting seam: it carries the contract with the backend as
+  typed models, so a changing schema fails the build before it reaches the
+  agents.
+</CaseSection>
+
+<CaseSection n="05" title="Key decisions">
+  <CaseList
+    marker="→"
+    items={[
+      'Carve packages around stability, not architecture diagrams. UI primitives, the API contract, and core config were the seams that stopped churning.',
+      'Typed API from the first commit. Every endpoint response is a shared model - the frontend and backend argue in CI, not in production.',
+      'Migration by workflow parity, not by page. Each shipped workflow was a complete, testable slice of user value.',
+      'Environment promotion as a pipeline, not a ritual. The same build traverses dev → staging → prod, so what agents see in prod is what QA signed off in staging.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="06" title="Failure modes">
+  <CaseList
+    items={[
+      'Fields and enums drifting between frontend and backend - the typed client turned these into compile errors instead of support tickets.',
+      'Half-migrated ambiguity - an agent never knows whether a screen is "the old one" or "the new one"; each workflow switched atomically.',
+      'Silent regressions in busy workflows - the environment promotion path + the agents\u2019 sign-off list kept releases reversible.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="07" title="Result">
+  Roughly 300 employees now run their daily work on the modern platform. The
+  practical difference was velocity and control: small, reversible releases
+  instead of big-bang deploys, and a codebase where adding a field to a ticket
+  is a normal pull request instead of a project.
+</CaseSection>
+
+<CaseSection n="08" title="What I'd do differently">
+  <CaseList
+    marker="→"
+    items={[
+      'Involve a power-user coach from week one. The agents who taught us their workflow were invaluable - I would institutionalize that role earlier.',
+      'Time-box golden-master parity. Pixel-for-pixel equivalence with the old UI cost more than it returned; behavioral parity was the real contract.',
+      'Add a canary environment before agents, not after three environments existed.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="09" title="Related work">
+  <CaseRelated
+    items={[
+      { label: 'Frontend primitives & design system', href: '/', note: 'more things' },
+      { label: 'The ambient-audio SDK - where the same seams show at larger scale', href: '/work/ambient-audio-sdk', note: 'case study 01' },
+    ]}
+  />
+</CaseSection>

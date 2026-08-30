@@ -1,0 +1,136 @@
+export const metadata = {
+  title: 'Reliable browser audio infrastructure at SDK scale',
+  description:
+    'A headed and headless ambient-audio SDK - session orchestration, real-time WebSocket streaming, offline-first persistence, and recovery that cut upload failures from 6% to 0.2%.',
+}
+
+<CaseHeader
+  index="01"
+  context="Suki · Production"
+  period="2023 - Present"
+  title="Reliable browser audio infrastructure at SDK scale"
+  summary="A headed and headless ambient-audio SDK that 10+ organizations embed and ~1,500 users depend on every day. The work that matters here is the machinery around the audio - session lifecycle, real-time streaming, offline recovery - and it cut audio upload failures from ~6% to ~0.2%."
+  tags={['TypeScript', 'WebSockets', 'Web Audio', 'IndexedDB', 'Web Workers', 'XState']}
+/>
+
+<MetricBand
+  items={[
+    { value: '10+', label: 'organizations embed the SDK' },
+    { value: '~1,500', label: 'users depend on it daily' },
+    { value: '6% → 0.2%', label: 'audio upload failure rate' },
+    { value: '−97%', label: 'failures after reliability work' },
+  ]}
+/>
+
+<CaseSection n="01" title="Problem">
+  Ambient AI assistance works by capturing audio in the browser while a
+  clinician uses their real day-to-day tools - an EHR, a scheduling app, a
+  page we host. That audio has to leave the browser, arrive intact at an
+  ingestion backend, and be transcribed into a note the clinician can trust.
+</CaseSection>
+
+<CaseSection n="02" title="Constraints">
+  The SDK ships into environments we don't control:
+  <CaseList
+    items={[
+      'A browser page, not a native app - Web Audio, no privileged capture, no guaranteed background execution.',
+      'Host applications that only talk to us through a deliberate API boundary; we can\u2019t reach into their internals.',
+      'Real hospital networks: dropped WebSocket connections, flaky Wi-Fi, proxies, aggressive battery/sleep throttling on laptops.',
+      'A session the host creates and destroys - page visibility, tab switches, and tab closure all end audio capture abruptly.',
+      'Mobile browsers where capture competes with the OS for mic access, and timers stall when the page is backgrounded.',
+      'Privacy and safety: audio is clinical. It cannot silently leak, and partial uploads on the next reconnect are as bad as a failure.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="03" title="My responsibility">
+  I own the SDK architecture and reliability story end to end - from the
+  public API contract to the recovery paths that keep uploads honest. The
+  headed React integration and the headless client share one core, so nothing
+  about the underlying machinery is an afterthought of the UI.
+  <CaseGrid
+    rows={[
+      { k: 'API design', v: 'A command/event contract that heads and headless hosts both consume - start, stop, and state transitions that can be observed, not guessed.' },
+      { k: 'Session lifecycle', v: 'A state machine owns every transition: idle → capturing → streaming → finalizing → error/recovery.' },
+      { k: 'Transport', v: 'Chunked WebSocket streaming with acks, reconnect with jitter, and resumable uploads.' },
+      { k: 'Offline path', v: 'IndexedDB spool, exponential backoff, and idempotent recovery so a dropped network is never a lost session.' },
+      { k: 'Host integration', v: 'Packaging, versioning, and a stability contract that lets embedded hosts upgrade without breaking.' },
+      { k: 'Reliability', v: 'Failure-mode analysis and the changes that took upload failures from ~6% to ~0.2%.' },
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="04" title="Architecture">
+  Everything behind the public API runs inside the SDK's own runtime -
+  capture, encode, buffering, and transport in a single Web Worker keeps the
+  host thread free, while a Web Audio graph on the main thread is the only
+  touchpoint with the microphone.
+  <AmbientSystemDiagram />
+  The reducer of the whole system is the session state machine. Hosts call
+  **start()** and observe events; the machine decides what actually has to
+  happen for audio to flow safely - acquiring capture, opening the socket,
+  spooling to IndexedDB when the network is bad, and tearing everything down
+  in the right order when the session ends.
+</CaseSection>
+
+<CaseSection n="05" title="Key engineering decisions">
+  <CaseList
+    marker="→"
+    items={[
+      'State, not callbacks. Every lifecycle transition is just data; the UI renders it, and recovery logic reacts to it. It is what made failure modes auditable instead of emergent.',
+      'A worker owns the pipeline. Encoding and buffering never fight the host thread for frame budget - audio keeps flowing even while the EHR page is re-rendering.',
+      'IndexedDB as the offline spool, not a "buffer in memory and hope". If a chunk was captured, it exists on disk until it is acknowledged.',
+      'Resumable, idempotent uploads. Every chunk carries an offset and a key; a reconnect picks up where the last ack left off instead of re-sending from zero.',
+      'Reconnect with jitter and backoff. Thundering-herd reconnects after an outage are a failure mode of their own.',
+      'A screen for every state. The host always knows: capturing, streaming, degraded, offline, retrying - with the exact reason attached.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="06" title="Failure modes, designed for">
+  <AmbientRecoveryDiagram />
+  <CaseList
+    items={[
+      'Socket dropped mid-upload - the chunk is persisted first; the retry gate backs off (1s → 30s cap) and resumes from the last acknowledged offset, never from zero.',
+      'Page backgrounded and timers throttled - the worker keeps buffering what it can, and the state machine marks the session degraded instead of silently dying.',
+      'Chart-closing races - a host destroying a session is a first-class event, not an edge case; teardown is ordered so the final chunks still make it out.',
+      'Partial acks - a chunk that is acked-but-not-stored triggers a re-connection that resumes, with duplicates dropped at the offset boundary.',
+      'Duplicate data - idempotency keys make re-uploads safe without the backend needing a transactional retry model.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="07" title="Result">
+  <MetricBand
+    items={[
+      { value: '10+', label: 'organizations running the SDK' },
+      { value: '~1,500', label: 'production users' },
+      { value: '6% → 0.2%', label: 'upload failures' },
+      { value: '0', label: 'lost-session escapes' },
+    ]}
+  />
+  The reliability investment moved the failure rate from roughly 6% to
+  sub-quarter-percent - a ~97% reduction in users whose audio never made it
+  to a note. The sessions that do fail now recover on their own instead of
+  requiring a retry by hand.
+</CaseSection>
+
+<CaseSection n="08" title="What I'd do differently">
+  <CaseList
+    marker="→"
+    items={[
+      'Instrument the failure modes first. A lot of the reliability work started with "why is this happening" - the metrics existed, but I would build per-state counters into the state machine from day one.',
+      'Contract-test the public API. The compatibility surface for 10+ hosts is the most expensive thing to change; a consumer-driven contract suite would have paid for itself immediately.',
+      'Design the versioning story before the first host shipped, not after the second.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="09" title="Related work">
+  <CaseRelated
+    items={[
+      { label: 'The FSM design pattern behind offline uploads', href: '/writing/fsm-design-pattern', note: 'writing · in progress' },
+      { label: 'Dictation SDK - real-time voice-to-text streaming', href: '/work/support-platform', note: 'more things' },
+    ]}
+  />
+</CaseSection>

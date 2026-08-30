@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Newsreader } from 'next/font/google'
 import './globals.css'
 import { Header } from './header'
 import { Footer } from './footer'
@@ -10,20 +10,44 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#ffffff',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fcfcfa' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b0b0d' },
+  ],
+}
+
+const site = {
+  name: 'Shrivatsa Kashyap',
+  title: 'Shrivatsa Kashyap - Frontend engineer building SDKs and real-time browser systems',
+  url: 'https://shrivatsa.dev',
+  description:
+    'Shrivatsa Kashyap is a frontend engineer building SDKs, real-time browser systems, offline-first tooling, and reliable product infrastructure. Software Engineer II, Frontend at Suki.',
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://vatsa-tech.vercel.app/'),
+  metadataBase: new URL(site.url),
   alternates: {
     canonical: '/',
   },
   title: {
-    default: 'Shrivatsa Kashyap',
-    template: '%s | Shrivatsa',
+    default: site.title,
+    template: '%s - Shrivatsa Kashyap',
   },
-  description:
-    'Portfolio website of Shrivatsa Kashyap built with Nim in NextJS',
+  description: site.description,
+  authors: [{ name: site.name }],
+  openGraph: {
+    title: site.title,
+    description: site.description,
+    type: 'website',
+    url: site.url,
+    siteName: site.name,
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary',
+    title: site.title,
+    description: site.description,
+  },
 }
 
 const geist = Geist({
@@ -36,6 +60,12 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
+const newsreader = Newsreader({
+  variable: '--font-newsreader',
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+})
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -44,7 +74,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geist.variable} ${geistMono.variable} bg-white tracking-tight antialiased dark:bg-zinc-950`}
+        className={`${geist.variable} ${geistMono.variable} ${newsreader.variable} bg-paper font-sans text-foreground antialiased`}
       >
         <Analytics />
         <SpeedInsights />
@@ -54,12 +84,12 @@ export default function RootLayout({
           storageKey="theme"
           defaultTheme="system"
         >
-          <div className="flex min-h-screen w-full flex-col font-[family-name:var(--font-inter-tight)]">
-            <div className="relative mx-auto w-full max-w-screen-sm flex-1 px-4 pt-20">
-              <Header />
+          <div className="flex min-h-screen w-full flex-col">
+            <Header />
+            <main className="mx-auto w-full max-w-3xl flex-1 px-6 pt-20 sm:px-8">
               {children}
-              <Footer />
-            </div>
+            </main>
+            <Footer />
           </div>
         </ThemeProvider>
       </body>

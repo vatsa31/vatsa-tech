@@ -1,0 +1,74 @@
+export const metadata = {
+  title: 'react-exp-workspace - an Nx monorepo with React and Express',
+  description:
+    'An npm CLI that generates an Nx workspace with a Vite + React client and an Express server, plus a matching source layout for both - from one command.',
+}
+
+<CaseHeader
+  index="03"
+  context="Personal · npm · Open source"
+  period="2023"
+  title="react-exp-workspace - an Nx monorepo with React and Express"
+  summary="The Turborepo scaffold covers client-only setups, but full-stack projects need a server from the start. This CLI generates an Nx workspace containing a Vite + React client and an Express API, then scaffolds both sides with a source layout that is identical every time."
+  tags={['Node CLI', 'Nx', 'Vite', 'React', 'Express', 'TypeScript']}
+/>
+
+<CaseSection n="01" title="The project">
+  One command, three positional names:
+  <CaseList
+    marker="→"
+    items={[
+      'npx create-nx-react-express-workspace <workspace-name> <client-name> <server-name>',
+      'Bootstraps an empty Nx workspace via create-nx-workspace.',
+      'Generates a React app with the Nx React generator - Vite bundler, styled-components, routing, and Cypress e2e.',
+      'Generates an Express API with the Nx Express generator.',
+      'Scaffolds the client source layout (apis, components, constants, helpers, hocs, hooks, pages, redux, routes, types) and the server layout (constants, controllers, helpers, middleware, routes, types), with an index.ts barrel in every folder.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="02" title="Tech stack">
+  <CaseGrid
+    rows={[
+      { k: 'Node CLI', v: 'A single entry point that composes official Nx generators and writes the skeleton.' },
+      { k: 'Nx workspace', v: 'Generated with the empty preset, then extended with two app generators.' },
+      { k: '@nx/react', v: 'Client app generated with Vite, styled-components, routing, and Cypress.' },
+      { k: '@nx/express', v: 'Server app generated into apps/, ready for middleware, routes, and controllers.' },
+      { k: 'TypeScript', v: 'Every scaffolded folder opens with an index.ts barrel so imports resolve immediately.' },
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="03" title="How it runs">
+  <CaseList
+    marker="→"
+    items={[
+      'create-nx-workspace builds the empty workspace in the current directory.',
+      'The React app is generated first, with the generators taking flags instead of prompting, so the whole run is unattended.',
+      'The Express app is generated second, targeting the same apps/ directory the client already occupies.',
+      'Both src trees are scaffolded with index.ts barrels, then the CLI reports the exact layout you can start coding in.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="04" title="Challenges while building">
+  <CaseList
+    marker="→"
+    items={[
+      'Generator composition is order-sensitive. The empty workspace, the React app, and the Express app have to be created in sequence against the right cwd - a mistake in the working directory breaks the whole project graph.',
+      'Generator flags drift between Nx majors. --bundler, --style, --e2eTestRunner come from generator schemas that change; pinning the expectations is part of keeping the scaffold reproducible.',
+      'Strict CLI contract. All three positional names are required and anything less exits with usage - the npm command fails loudly instead of half-finishing a workspace.',
+      'Deterministic skeleton on both sides of the stack. Client and server get different folder shapes, and both are pre-created with index.ts barrels so the project compiles the moment the command finishes.',
+      'Quiet failures. The whole run is wrapped so a single failed generator writes a clear message and exits non-zero instead of leaving the user inside a half-built workspace.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="05" title="Links">
+  <CaseRelated
+    items={[
+      { label: 'github.com/vatsa31/react-exp-workspace', href: 'https://github.com/vatsa31/react-exp-workspace', note: 'source' },
+      { label: 'npm: create-nx-react-express-workspace', href: 'https://www.npmjs.com/package/create-nx-react-express-workspace', note: 'registry' },
+    ]}
+  />
+</CaseSection>

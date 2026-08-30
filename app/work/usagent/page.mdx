@@ -1,0 +1,133 @@
+export const metadata = {
+  title: 'Usagent - AI coding-agent usage, always visible',
+  description:
+    'A macOS menu-bar app that surfaces Codex and Cursor usage behind one normalized provider interface - credentials stay in Rust, only usage numbers reach the UI.',
+}
+
+<CaseHeader
+  index="01"
+  context="Personal · Open source"
+  period="2026"
+  title="Usagent - AI coding-agent usage, always visible"
+  summary="Usagent is a macOS menu-bar utility that keeps your AI coding-agent usage in view at all times. It reads Codex and Cursor usage, normalizes both into a single model behind one provider interface, and renders a compact per-provider quota view - no dashboards, no /usage commands."
+  tags={['Tauri', 'Rust', 'React', 'TypeScript']}
+/>
+
+<MetricBand
+  items={[
+    { value: '2', label: 'providers behind one interface' },
+    { value: '0', label: 'tokens reaching the UI' },
+    { value: '3m', label: 'local poll cadence for Codex' },
+    { value: '30m', label: 'backoff cap on failures' },
+  ]}
+/>
+
+<CaseSection n="01" title="Why I built it">
+  I spend my day in Codex and Cursor from the CLI. Checking how much headroom
+  I have left meant running <code>/usage</code>, or opening a dashboard
+  mid-flow - and I kept forgetting until something hit a limit at the worst
+  moment. The pain was small and perfectly recurring, which is exactly when a
+  tiny tool earns its place.
+  <CasePull>
+    I didn&rsquo;t want a dashboard. I wanted one glance, always visible.
+  </CasePull>
+</CaseSection>
+
+<CaseSection n="02" title="What it does">
+  Usagent runs as a menu-bar accessory. It reads usage from each provider,
+  normalizes it into a shared usage model, and renders a compact quota view in
+  a popover - per-provider tabs, remaining percentages, reset times, and a
+  freshness signal so you always know how much headroom you have left, and
+  how confident you can be in what you're looking at.
+</CaseSection>
+
+<CaseSection n="03" title="The product">
+  <UsagentMock />
+  The tray title itself is the product: a tiny **Cx 64 · Cu 38** in the menu
+  bar updates as usage changes, so the answer is visible without even opening
+  the popover.
+</CaseSection>
+
+<CaseSection n="04" title="Architecture">
+  Usagent is a Tauri app - a Rust core and a React renderer. All provider
+  work, from discovery to fetch to normalization, happens on the native side;
+  the renderer is a consumer of one normalized type.
+  <UsagentArchitectureDiagram />
+</CaseSection>
+
+<CaseSection n="05" title="Provider abstraction">
+  The core of the design is a single trait:
+  <CaseList
+    marker="→"
+    items={[
+      'UsageProvider: fetch one normalized ProviderUsage - provider, account label, observedAt, and a list of UsageLimit entries.',
+      'Every provider is an adapter: discovery, source access, and protocol differences live entirely behind that trait.',
+      'Codex and Cursor have nothing in common until they reach the trait - one reads local CLI state, the other calls a remote API - but the renderer never knows the difference.',
+      'Adding a third provider means adding one module that satisfies the trait; nothing in the UI or cache changes.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="06" title="Native vs renderer boundary">
+  <CaseList
+    marker="→"
+    items={[
+      'Rust owns discovery (finding the Codex CLI, reading the Cursor keychain item), the HTTP calls, and normalization.',
+      'The renderer only receives ProviderUsage objects across the IPC boundary - a flat, serializable, normalized payload.',
+      'Refresh-in-progress state, staleness, and errors are the renderer\u2019s problems; raw responses and credentials are the native side\u2019s problems - and never the other way around.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="07" title="Credentials & security">
+  <CaseList
+    marker="→"
+    items={[
+      'Cursor\u2019s session token is read from the macOS Keychain via the security CLI, passed directly into the provider, and never persisted by the app.',
+      'Codex needs no stored credential at all - Usagent just discovers and spawns the local CLI it already respects.',
+      'No token, no raw payload, and no account config ever crosses into JavaScript. The IPC contract is the security boundary: only usage numbers leave Rust.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="08" title="Refresh, polling & backoff">
+  <CaseList
+    marker="→"
+    items={[
+      'Codex usage is cheap and local, so it polls in the background every 3 minutes - plus on popover open and manual refresh.',
+      'Cursor usage hits a remote endpoint, so it is fetched on demand and throttled rather than polled; manual refresh always bypasses the throttle.',
+      'Failed background refreshes back off exponentially, 3m → 30m cap, so a broken provider doesn\u2019t hammer anything.',
+      'Overlapping refreshes are skipped with an in-flight guard - no duplicate work, no stale response clobbering a fresh one.',
+      'Stale snapshots stay visible and are explicitly aged ("synced 2m ago", "stale") instead of the UI going blank on a failure.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="09" title="macOS problems worth knowing about">
+  <CaseList
+    marker="→"
+    items={[
+      'GUI vs Shell environments see different PATHs - a codex binary found in iTerm is not guaranteed visible to the menu-bar process; discovery walks PATH plus known install locations, with an env override.',
+      'Tray popover focus - making the popover open reliably on click, and close when it loses focus, needed explicit handling rather than the default toggle.',
+      'Live tray title - updating the tray title from async commands is a real integration detail, not a config flag.',
+      'Keychain access from a signed app triggers permissions prompts; the token read is scoped and minimal by design.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="10" title="Extensibility">
+  The provider trait plus the normalized model mean the app's growth is a set
+  of localized additions: a new provider module, a discovery step, and a
+  protocol implementation - with the shared model, cache, backoff, and
+  renderer untouched. Individual usage, team pools, and metered limits already
+  flow through the same schema, so hybrid plans compose instead of special-case.
+</CaseSection>
+
+<CaseSection n="11" title="Links">
+  <CaseRelated
+    items={[
+      { label: 'github.com/vatsa31/usagent', href: 'https://github.com/vatsa31/usagent', note: 'source · landing site · releases' },
+      { label: 'Usagent landing site', href: 'https://github.com/vatsa31/usagent/tree/main/apps/usagent-land', note: 'TanStack Start' },
+    ]}
+  />
+</CaseSection>

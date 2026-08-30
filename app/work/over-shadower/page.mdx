@@ -1,0 +1,80 @@
+export const metadata = {
+  title: 'over-shadower - a neomorphism box-shadow playground',
+  description:
+    'A live box-shadow generator with a neomorphism look - size, radius, offsets, blur, and color, all driven by a single typed reducer.',
+}
+
+<CaseHeader
+  index="04"
+  context="Personal · Open source"
+  period="2024"
+  title="over-shadower - a neomorphism box-shadow playground"
+  summary="over-shadower is a small, focused tool for a very specific aesthetic: soft, raised UI that looks machined out of the surface it sits on. Six controls shape a live preview - size, border radius, offset distance, blur, and color - and the shadow string it produces is a real, copy-ready value."
+  tags={['React', 'TypeScript', 'useReducer', 'Vite', 'Tailwind', 'Turborepo']}
+/>
+
+<CaseSection n="01" title="The project">
+  A neomorphic style is really two shadows in one declaration: one cast onto
+  the surface, and one inset highlight coming back off it. over-shadower
+  exposes every knob that builds that string:
+  <CaseList
+    marker="→"
+    items={[
+      'Width, height, and border radius of the box itself.',
+      'Offset distance for the raised edge, blur radius, and color.',
+      'A live preview that re-renders with every slider move.',
+      'A generated box-shadow value you can lift straight into your own CSS.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="02" title="Tech stack">
+  <CaseGrid
+    rows={[
+      { k: 'React + TypeScript', v: 'A Vite + React app whose entire state is one typed reducer.' },
+      { k: 'useReducer', v: 'Six control knobs, six typed actions, one immutable state tree the preview renders from.' },
+      { k: 'Tailwind CSS', v: 'Layout and the monorepo-wide look, with a shared config in packages.' },
+      { k: 'Turborepo + pnpm', v: 'The app lives in apps/, with shared packages for UI, TypeScript config, and ESLint config.' },
+      { k: 'RangeInput', v: 'A reusable slider component typed to a discriminated union of reducer fields.' },
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="03" title="How the shadow is built">
+  The preview box computes its shadow directly from reducer state:
+  <CaseList
+    marker="→"
+    items={[
+      'Every slider dispatches a typed action: SET_RADIUS, SET_WIDTH, SET_HEIGHT, SET_BOX_SHADOW_DISTANCE, SET_BLUR_RADIUS, or SET_COLOR.',
+      'The reducer returns a new state object, so no two controls can fight each other - the preview always renders a consistent snapshot.',
+      'The final box-shadow string combines the positive and negative offsets, which is what makes the raised, neomorphic edge read as 3D.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="04" title="Challenges while building">
+  <CaseList
+    marker="→"
+    items={[
+      'Composing the dual-shadow string. Neomorphism needs the offset shadow and its inverted highlight in one declaration (+x +y blur color, -x -y blur color) - getting the sign flips right is the whole visual.',
+      'Six controls, one source of truth. useReducer with typed actions meant the preview could never render a half-updated state, and the handleChange plumbing stayed readable for every field.',
+      'Typing the slider generically. RangeInput receives a field and an onChange bound to it, while color gets its own input and action - the discriminated union keeps them from mixing.',
+      'Empty default color. The initial color is an empty string, which browsers ignore in the shadow value; guarding against it meant the preview never breaks on first load.',
+      'Monorepo structure. The app is small but intentionally lives in a Turborepo workspace with shared UI and config packages, so the foundation scales before the feature set does.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="05" title="What\u2019s next">
+  The README lists the honest leftovers: returning the generated shadow value
+  as copy-paste output, adding custom ESLint import-ordering rules to the
+  shared config, and standing up a deployment.
+</CaseSection>
+
+<CaseSection n="06" title="Links">
+  <CaseRelated
+    items={[
+      { label: 'github.com/vatsa31/over-shadower', href: 'https://github.com/vatsa31/over-shadower', note: 'source' },
+    ]}
+  />
+</CaseSection>

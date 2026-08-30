@@ -2,24 +2,120 @@
 @plugin '@tailwindcss/typography';
 @custom-variant dark (&:is(.dark *));
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+@theme {
+  --color-paper: #fcfcfa;
+  --color-sheet: #f4f3ef;
+  --color-foreground: #171614;
+  --color-muted: #6e6d67;
+  --color-faint: #9c9b94;
+  --color-line: #17161414;
+  --color-line-strong: #1716142e;
+  --color-accent: #b45309;
+  --color-accent-soft: #d97706;
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+  --font-display: var(--font-newsreader), 'Iowan Old Style', Georgia, serif;
+}
+
+.dark {
+  --color-paper: #0b0b0d;
+  --color-sheet: #141417;
+  --color-foreground: #f1f0ec;
+  --color-muted: #a7a69f;
+  --color-faint: #707069;
+  --color-line: #ffffff1c;
+  --color-line-strong: #ffffff38;
+  --color-accent: #e48a3d;
+  --color-accent-soft: #f59e0b;
+}
+
 @layer base {
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: var(--color-line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 24%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 }
 
+/* Subtle stage for architecture diagrams */
+.dot-grid {
+  background-image: radial-gradient(
+    var(--color-line-strong) 1px,
+    transparent 1px
+  );
+  background-size: 16px 16px;
+  background-position: 8px 8px;
+}
+
+/* Restrained motion: data-flow dashes + status pulse (CSS-driven, so the
+   reduced-motion media query fully disables them). */
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+.flow-line {
+  stroke-dasharray: 3 9;
+  animation: dash-flow 1.4s linear infinite;
+}
+
+@keyframes dot-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.pulse-dot {
+  animation: dot-pulse 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-line {
+    animation: none;
+  }
+
+  .pulse-dot {
+    animation: none;
+    opacity: 0.85;
+  }
+
+  .reveal {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* sugar-high token colors (kept from previous design) */
 :root {
   --sh-class: #7aa2f7;
   --sh-sign: #89ddff;
@@ -29,24 +125,4 @@
   --sh-jsxliterals: #7aa2f7;
   --sh-property: #73daca;
   --sh-entity: #e0af68;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .social-link-arrow {
-    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .group:hover .social-link-arrow {
-    transform: translate(1px, -1px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .social-link-arrow {
-    transition: none;
-  }
-
-  .group:hover .social-link-arrow {
-    transform: none;
-  }
 }

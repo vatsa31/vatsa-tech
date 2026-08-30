@@ -1,149 +1,128 @@
-type Project = {
-  name: string
-  description: string
-  link: string
-  video?: string
-  details: string
-  id: string
-}
+import type { LucideIcon } from 'lucide-react'
+import { Github, Linkedin, Mail } from 'lucide-react'
 
-type WorkExperience = {
-  company: string
+export type Project = {
+  repo: string
   title: string
-  start: string
-  end: string
-  link?: string
-  id: string
+  summary: string
+  href: string
+  github: string
+  meta: string
+  tags?: string[]
 }
 
-type BlogPost = {
-  title: string
-  description: string
-  link: string
-  uid: string
+export const HERO = {
+  kicker: 'Software Engineer II, Frontend - Suki',
+  title: 'Shrivatsa Kashyap',
+  tagline:
+    'I build SDKs, real-time browser systems, and developer tools that have to keep working when the network doesn\u2019t.',
+  sub: 'Most of my work lives at the boundary between web applications, browser and platform APIs, and native code: browser audio pipelines, WebSocket transports, offline stores, and state-machine orchestration. When I\u2019m not at work, I\u2019m shipping small open-source tools for developers.',
 }
 
-type SocialLink = {
+export const SELECTED_WORK: Project[] = [
+  {
+    repo: 'usagent',
+    title: 'Usagent',
+    summary:
+      'A macOS menu-bar app that shows Codex and Cursor token usage behind one normalized provider interface. Credentials stay in Rust; only numbers reach the UI.',
+    href: '/work/usagent',
+    github: 'https://github.com/vatsa31/usagent',
+    meta: 'Tauri · Rust · React',
+  },
+  {
+    repo: 'turbo-vite-react',
+    title: 'create-pn-react-express',
+    summary:
+      'An npm scaffold that sets up a Turborepo monorepo with Vite, React, and TypeScript - including a clean folder structure for apis, hooks, routes, and components.',
+    href: '/work/turbo-vite-react',
+    github: 'https://github.com/vatsa31/turbo-vite-react',
+    meta: 'npm · Turborepo · Vite',
+  },
+  {
+    repo: 'react-exp-workspace',
+    title: 'create-nx-react-express-workspace',
+    summary:
+      'An npm scaffold for an Nx workspace that combines a Vite + React client with an Express server, both in TypeScript.',
+    href: '/work/react-exp-workspace',
+    github: 'https://github.com/vatsa31/react-exp-workspace',
+    meta: 'npm · Nx · Express',
+  },
+  {
+    repo: 'over-shadower',
+    title: 'over-shadower',
+    summary:
+      'A box-shadow generator, neomorphism-style. Adjust size, radius, offsets, color, and blur live - and copy the value out.',
+    href: '/work/over-shadower',
+    github: 'https://github.com/vatsa31/over-shadower',
+    meta: 'React · TypeScript · Turborepo',
+  },
+]
+
+export const COMPANY_PROJECTS = [
+  {
+    title: 'Ambient audio SDK',
+    summary:
+      'Browser audio capture, real-time streaming, and offline recovery - embedded by 10+ organizations, ~1,500 daily users.',
+    meta: 'Suki · production',
+  },
+  {
+    title: 'Support platform',
+    summary:
+      'An internal CRM used by ~300 employees, migrated from a legacy frontend onto typed React with shared packages.',
+    meta: 'Suki · production',
+  },
+]
+
+export const WORK_EXPERIENCE = [
+  {
+    id: 'se2',
+    role: 'Software Engineer II, Frontend',
+    company: 'Suki',
+    period: '2025 - Present',
+    scope:
+      'SDK architecture and reliability: ambient-audio infrastructure, session orchestration, and offline-first recovery.',
+  },
+  {
+    id: 'se1',
+    role: 'Software Engineer I, Frontend',
+    company: 'Suki',
+    period: '2023 - 2025',
+    scope:
+      'Frontend systems across clinical products - transport, offline workflows, and internal platform modernization.',
+  },
+  {
+    id: 'intern',
+    role: 'Engineering Intern',
+    company: 'Suki',
+    period: '2023',
+    scope:
+      'Joined as an intern; shipped frontend work before converting full-time.',
+  },
+]
+
+export const ABOUT =
+  'I\u2019m a frontend engineer, currently at Suki. I work in TypeScript and React on systems that sit between web applications, browser and platform APIs, native code, and backend infrastructure - and I care about architecture decisions, failure modes, and shipping software that stays reliable under real production conditions.'
+
+export type ConnectLink = {
   label: string
-  link: string
+  href: string
+  icon: LucideIcon
 }
 
-// export const PROJECTS: Project[] = [
-//   {
-//     name: 'Motion Primitives Pro',
-//     description:
-//       'Advanced components and templates to craft beautiful websites.',
-//     link: 'https://pro.motion-primitives.com/',
-//     video:
-//       'https://res.cloudinary.com/read-cv/video/upload/t_v_b/v1/1/profileItems/W2azTw5BVbMXfj7F53G92hMVIn32/newProfileItem/d898be8a-7037-4c71-af0c-8997239b050d.mp4?_a=DATAdtAAZAA0',
-//     id: 'project1',
-//   },
-//   {
-//     name: 'Motion Primitives',
-//     description: 'UI kit to make beautiful, animated interfaces.',
-//     link: 'https://motion-primitives.com/',
-//     video:
-//       'https://res.cloudinary.com/read-cv/video/upload/t_v_b/v1/1/profileItems/W2azTw5BVbMXfj7F53G92hMVIn32/XSfIvT7BUWbPRXhrbLed/ee6871c9-8400-49d2-8be9-e32675eabf7e.mp4?_a=DATAdtAAZAA0',
-//     id: 'project2',
-//   },
-// ]
-//
-
-export const PROJECTS: Project[] = [
+export const CONNECT_LINKS: ConnectLink[] = [
   {
-    name: 'create-pn-react-express',
-    description: 'A npm package',
-    details:
-      'A npm package for creating a monorepo for React app using Vite and Typescript using Turborepo. Also creates a proper folder structure.',
-    link: 'https://www.npmjs.com/package/create-pn-react-express',
-    id: 'project-1',
+    label: 'Email',
+    href: 'mailto:shrivatsakulkarni31@gmail.com',
+    icon: Mail,
   },
   {
-    name: 'create-nx-react-express-workspace',
-    description: 'A npm package',
-    details:
-      'A npm package for creating a monorepo for React with Express using NX',
-    link: 'https://www.npmjs.com/package/create-nx-react-express-workspace',
-    id: 'project-2',
-  },
-]
-
-export const WORK_EXPERIENCE: WorkExperience[] = [
-  {
-    company: 'Suki',
-    title: 'Software Engineer - II',
-    start: '2025',
-    end: 'Present',
-    id: 'work3',
-  },
-  {
-    company: 'Suki',
-    title: 'Software Engineer - I',
-    start: '2023',
-    end: '2025',
-    id: 'work2',
-  },
-  {
-    company: 'Suki',
-    title: 'Engineering Intern',
-    start: '2023',
-    end: '2023',
-    id: 'work1',
-  },
-]
-
-export const BLOG_POSTS: BlogPost[] = [
-  {
-    title: 'From React Code to Browser: The Journey Simplified',
-    description: 'My take on the React lifecycle',
-    link: '/blog/react-the-journey',
-    uid: 'blog-1',
-  },
-  {
-    title: 'Hot Module Replacement (HMR): One Click Update',
-    description: 'How HMR powers faster development',
-    link: '/blog/hmr-one-click-update',
-    uid: 'blog-2',
-  },
-  {
-    title: 'Exploring the Finite State Machine design pattern',
-    description:
-      'How FSM architecture can be used to handle Offline Audio Upload',
-    link: '/blog/fsm-design-pattern',
-    uid: 'blog-3',
-  },
-  {
-    title: 'My take on the current job market',
-    description:
-      'A deep dive into my thoughts on where frontend development is headed',
-    link: '/blog/take-on-current-job-market',
-    uid: 'blog-4',
-  },
-  {
-    title: 'How AI impacts the state of frontend development',
-    description: 'My take on the impact of AI on frontend development',
-    link: '/blog/ai-impacts-fe-development',
-    uid: 'blog-5',
-  },
-]
-
-export const SOCIAL_LINKS: SocialLink[] = [
-  {
-    label: 'Github',
-    link: 'https://github.com/vatsa31',
-  },
-  {
-    label: 'Twitter',
-    link: 'https://twitter.com/thisisvatsaa',
+    label: 'GitHub',
+    href: 'https://github.com/vatsa31',
+    icon: Github,
   },
   {
     label: 'LinkedIn',
-    link: 'https://www.linkedin.com/in/shrivatsa-kulkarni-65967a1b8/',
-  },
-  {
-    label: 'Instagram',
-    link: 'https://www.instagram.com/thisisvatsaa',
+    href: 'https://www.linkedin.com/in/shrivatsa-kulkarni-65967a1b8/',
+    icon: Linkedin,
   },
 ]
-
-export const EMAIL = 'shrivatsakulkarni31@gmail.com'

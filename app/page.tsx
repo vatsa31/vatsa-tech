@@ -1,462 +1,176 @@
-'use client'
-import { motion, useReducedMotion } from 'motion/react'
-import { XIcon } from 'lucide-react'
-import { Spotlight } from '@/components/ui/spotlight'
-import { Magnetic } from '@/components/ui/magnetic'
-import {
-  MorphingDialog,
-  MorphingDialogTrigger,
-  MorphingDialogContent,
-  MorphingDialogClose,
-  MorphingDialogContainer,
-  MorphingDialogDescription,
-} from '@/components/ui/morphing-dialog'
 import Link from 'next/link'
-import { AnimatedBackground } from '@/components/ui/animated-background'
+import { ArrowUpRight } from 'lucide-react'
 import {
-  PROJECTS,
+  HERO,
+  SELECTED_WORK,
+  COMPANY_PROJECTS,
   WORK_EXPERIENCE,
-  BLOG_POSTS,
-  EMAIL,
-  SOCIAL_LINKS,
+  ABOUT,
+  CONNECT_LINKS,
 } from './data'
+import { EMAIL } from '@/lib/constants'
+import { FEATURED_POSTS } from './writing/posts'
+import { Reveal } from '@/components/site/reveal'
+import { Section } from '@/components/site/section'
+import { ProjectRow } from '@/components/site/project-row'
 
-const VARIANTS_CONTAINER = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-}
-
-const VARIANTS_SECTION = {
-  hidden: { opacity: 0, y: 20, filter: 'blur(8px)' },
-  visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
-}
-
-const TRANSITION_SECTION = {
-  duration: 0.3,
-}
-
-type ProjectVideoProps = {
-  src: string
-}
-type ProjectDescriptionProps = {
-  title: string
-  details: string
-}
-
-function ProjectDescription({ title, details }: ProjectDescriptionProps) {
-  const shouldReduceMotion = useReducedMotion()
-
+function Hero() {
   return (
-    <MorphingDialog
-      transition={{
-        type: 'spring',
-        bounce: 0,
-        duration: 0.3,
-      }}
-    >
-      <MorphingDialogTrigger>
-        <span className="text-lg font-bold">{title}</span>
-      </MorphingDialogTrigger>
-      <MorphingDialogContainer>
-        <MorphingDialogContent className="relative rounded-2xl bg-zinc-50 p-10 ring-1 ring-zinc-200/50 ring-inset dark:bg-zinc-950 dark:ring-zinc-800/50">
-          <MorphingDialogDescription
-            disableLayoutAnimation
-            variants={{
-              initial: {
-                opacity: 0,
-                y: shouldReduceMotion ? 0 : 8,
-              },
-              animate: {
-                opacity: 1,
-                y: 0,
-                transition: {
-                  type: 'spring',
-                  bounce: 0,
-                  duration: 0.3,
-                  delay: 0.05,
-                },
-              },
-              exit: {
-                opacity: 0,
-                y: shouldReduceMotion ? 0 : 8,
-                transition: { duration: 0.15 },
-              },
-            }}
+    <section className="pb-16 pt-12 sm:pb-24 sm:pt-20">
+      <Reveal>
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted">
+          {HERO.kicker}
+        </p>
+        <h1 className="mt-6 font-display text-5xl leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl">
+          {HERO.title}
+        </h1>
+        <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted">
+          {HERO.tagline}
+        </p>
+        <p className="mt-4 max-w-2xl leading-relaxed text-muted">
+          {HERO.sub}
+        </p>
+      </Reveal>
+    </section>
+  )
+}
+
+function About() {
+  return (
+    <Section id="about" number="01" label="About">
+      <p className="max-w-2xl text-lg leading-relaxed text-foreground">{ABOUT}</p>
+    </Section>
+  )
+}
+
+function SelectedWork() {
+  return (
+    <Section id="work" number="02" label="Selected work" title="Open source, out in the open">
+      <div className="space-y-2">
+        {SELECTED_WORK.map((project) => (
+          <Reveal key={project.repo} delay={80}>
+            <ProjectRow project={project} />
+          </Reveal>
+        ))}
+      </div>
+    </Section>
+  )
+}
+
+function WritingPreview() {
+  return (
+    <Section number="03" label="Writing">
+      <div className="flex flex-col">
+        {FEATURED_POSTS.map((post) => (
+          <Link
+            key={post.slug}
+            href={`/writing/${post.slug}`}
+            className="group -mx-3 flex items-baseline justify-between gap-4 rounded-xl px-3 py-4 transition-colors duration-200 hover:bg-sheet"
           >
-            <p>{details}</p>
-          </MorphingDialogDescription>
-        </MorphingDialogContent>
-        <MorphingDialogClose
-          className="fixed top-6 right-6 h-fit w-fit rounded-full bg-white p-1"
-          variants={{
-            initial: { opacity: 0 },
-            animate: {
-              opacity: 1,
-              transition: { delay: 0.3, duration: 0.1 },
-            },
-            exit: { opacity: 0, transition: { duration: 0 } },
-          }}
-        >
-          <XIcon className="h-5 w-5 text-zinc-500" />
-        </MorphingDialogClose>
-      </MorphingDialogContainer>
-    </MorphingDialog>
-  )
-}
-
-function ProjectVideo({ src }: ProjectVideoProps) {
-  return (
-    <MorphingDialog
-      transition={{
-        type: 'spring',
-        bounce: 0,
-        duration: 0.3,
-      }}
-    >
-      <MorphingDialogTrigger>
-        <video
-          src={src}
-          autoPlay
-          loop
-          muted
-          className="aspect-video w-full cursor-zoom-in rounded-xl"
-        />
-      </MorphingDialogTrigger>
-      <MorphingDialogContainer>
-        <MorphingDialogContent className="relative aspect-video rounded-2xl bg-zinc-50 p-1 ring-1 ring-zinc-200/50 ring-inset dark:bg-zinc-950 dark:ring-zinc-800/50">
-          <video
-            src={src}
-            autoPlay
-            loop
-            muted
-            className="aspect-video h-[50vh] w-full rounded-xl md:h-[70vh]"
-          />
-        </MorphingDialogContent>
-        <MorphingDialogClose
-          className="fixed top-6 right-6 h-fit w-fit rounded-full bg-white p-1"
-          variants={{
-            initial: { opacity: 0 },
-            animate: {
-              opacity: 1,
-              transition: { delay: 0.3, duration: 0.1 },
-            },
-            exit: { opacity: 0, transition: { duration: 0 } },
-          }}
-        >
-          <XIcon className="h-5 w-5 text-zinc-500" />
-        </MorphingDialogClose>
-      </MorphingDialogContainer>
-    </MorphingDialog>
-  )
-}
-
-function MagneticSocialLink({
-  children,
-  link,
-}: {
-  children: React.ReactNode
-  link: string
-}) {
-  const shouldReduceMotion = useReducedMotion()
-
-  return (
-    <Magnetic springOptions={{ bounce: 0 }} intensity={0.3}>
-      <motion.a
-        href={link}
-        whileTap={{ scale: shouldReduceMotion ? 0.99 : 0.97 }}
-        transition={{ type: 'spring', bounce: 0, duration: 0.16 }}
-        className="group relative inline-flex shrink-0 items-center gap-[1px] rounded-full bg-zinc-100 px-2.5 py-1 text-sm text-black transition-colors duration-200 hover:bg-zinc-950 hover:text-zinc-50 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+            <div>
+              <h3 className="font-medium tracking-tight">{post.title}</h3>
+              <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted">
+                {post.description}
+              </p>
+            </div>
+            <ArrowUpRight className="h-4 w-4 shrink-0 text-faint transition-colors duration-200 group-hover:text-accent" />
+          </Link>
+        ))}
+      </div>
+      <Link
+        href="/writing"
+        className="mt-4 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.2em] text-muted transition-colors hover:text-foreground"
       >
-        {children}
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 15 15"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className={
-            shouldReduceMotion
-              ? 'h-3 w-3'
-              : 'social-link-arrow h-3 w-3'
-          }
-        >
-          <path
-            d="M3.64645 11.3536C3.45118 11.1583 3.45118 10.8417 3.64645 10.6465L10.2929 4L6 4C5.72386 4 5.5 3.77614 5.5 3.5C5.5 3.22386 5.72386 3 6 3L11.5 3C11.6326 3 11.7598 3.05268 11.8536 3.14645C11.9473 3.24022 12 3.36739 12 3.5L12 9.00001C12 9.27615 11.7761 9.50001 11.5 9.50001C11.2239 9.50001 11 9.27615 11 9.00001V4.70711L4.35355 11.3536C4.15829 11.5488 3.84171 11.5488 3.64645 11.3536Z"
-            fill="currentColor"
-            fillRule="evenodd"
-            clipRule="evenodd"
-          ></path>
-        </svg>
-      </motion.a>
-    </Magnetic>
+        All writing
+        <span aria-hidden="true">→</span>
+      </Link>
+    </Section>
   )
 }
 
-function WorkExperienceCard({
-  job,
-}: {
-  job: (typeof WORK_EXPERIENCE)[number]
-}) {
-  const shouldReduceMotion = useReducedMotion()
-
+function Experience() {
   return (
-    <motion.a
-      className="relative overflow-hidden rounded-2xl bg-zinc-300/30 p-[1px] dark:bg-zinc-600/30"
-      href={job.link}
-      target="_blank"
-      rel="noopener noreferrer"
-      whileTap={{ scale: shouldReduceMotion ? 0.99 : 0.98 }}
-      transition={{ type: 'spring', bounce: 0, duration: 0.16 }}
-    >
-      <Spotlight
-        className="from-zinc-900 via-zinc-800 to-zinc-700 blur-2xl dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-50"
-        size={64}
-      />
-      <div className="relative h-full w-full rounded-[15px] bg-white p-4 dark:bg-zinc-950">
-        <div className="relative flex w-full flex-row justify-between">
-          <div>
-            <h4 className="font-normal dark:text-zinc-100">{job.title}</h4>
-            <p className="text-zinc-500 dark:text-zinc-400">{job.company}</p>
-          </div>
-          <p className="text-zinc-600 dark:text-zinc-400">
-            {job.start} - {job.end}
-          </p>
+    <Section number="04" label="Experience">
+      <ol className="flex flex-col gap-px overflow-hidden rounded-xl border border-line bg-line">
+        {WORK_EXPERIENCE.map((job) => (
+          <li key={job.id} className="bg-paper p-5 sm:p-6">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h3 className="font-medium tracking-tight">{job.role}</h3>
+              <span className="font-mono text-xs text-faint">{job.period}</span>
+            </div>
+            <p className="mt-1 font-mono text-xs uppercase tracking-[0.15em] text-accent">
+              {job.company}
+            </p>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">
+              {job.scope}
+            </p>
+          </li>
+        ))}
+      </ol>
+      <div className="mt-8">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted">
+          Also shipped at Suki
+        </p>
+        <div className="mt-3 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2">
+          {COMPANY_PROJECTS.map((item) => (
+            <div key={item.title} className="bg-paper p-5">
+              <h3 className="font-medium tracking-tight">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                {item.summary}
+              </p>
+              <p className="mt-3 font-mono text-[11px] text-faint">{item.meta}</p>
+            </div>
+          ))}
         </div>
       </div>
-    </motion.a>
+    </Section>
   )
 }
 
-export default function Personal() {
+function Connect() {
   return (
-    <motion.main
-      className="space-y-12"
-      variants={VARIANTS_CONTAINER}
-      initial="hidden"
-      animate="visible"
-    >
-      <motion.section
-        variants={VARIANTS_SECTION}
-        transition={TRANSITION_SECTION}
-      >
-        <div className="flex-1">
-          <p className="text-zinc-600 dark:text-zinc-400">
-            Growing at Suki. Collaborating across teams to build one of the best
-            AI Assistants for <span className="italic">Doctors</span>.
-          </p>
-        </div>
-      </motion.section>
-
-      <motion.section
-        variants={VARIANTS_SECTION}
-        transition={TRANSITION_SECTION}
-      >
-        <div className="flex-1">
-          I’m a frontend engineer driven by a passion for technology. I enjoy
-          building diverse projects using{' '}
-          <Link
-            href="https://react.dev/"
-            className="underline underline-offset-4"
-          >
-            React
-          </Link>{' '}
-          and{' '}
-          <Link
-            href="https://reactnative.dev/"
-            className="underline underline-offset-4"
-          >
-            React Native
-          </Link>
-          ,{' '}
-          <Link
-            href="https://threejs.org/"
-            className="underline underline-offset-4"
-          >
-            Three JS
-          </Link>
-          ,{' '}
-          <Link
-            href="https://motion.dev/"
-            className="underline underline-offset-4"
-          >
-            Framer motion
-          </Link>
-          ,{' '}
-          <Link
-            href="https://www.prisma.io/"
-            className="underline underline-offset-4"
-          >
-            Prisma
-          </Link>
-          ,{' '}
-          <Link
-            href="https://appwrite.io/"
-            className="underline underline-offset-4"
-          >
-            Appwrite
-          </Link>{' '}
-          and{' '}
-          <Link
-            href="https://socket.io/"
-            className="underline underline-offset-4"
-          >
-            Socket IO
-          </Link>
-          , while experimenting with tools like{' '}
-          <Link
-            href="https://atomiks.github.io/tippyjs/"
-            className="underline underline-offset-4"
-          >
-            Tippy.js
-          </Link>{' '}
-          and{' '}
-          <Link
-            href="https://voximplant.com/"
-            className="underline underline-offset-4"
-          >
-            Voximplant
-          </Link>{' '}
-          I’ve worked with integrating{' '}
-          <Link
-            href="https://turbo.build/"
-            className="underline underline-offset-4"
-          >
-            Turborepo
-          </Link>{' '}
-          and{' '}
-          <Link
-            href="https://vite.dev/"
-            className="underline underline-offset-4"
-          >
-            Vite
-          </Link>{' '}
-          for monorepo setups, and leveraged tools like{' '}
-          <Link
-            href="https://tanstack.com/"
-            className="underline underline-offset-4"
-          >
-            Tanstack Query
-          </Link>{' '}
-          and{' '}
-          <Link
-            href="https://vitest.dev/"
-            className="underline underline-offset-4"
-          >
-            Vitest
-          </Link>{' '}
-          for efficient workflows and quality assurance.
-        </div>
-      </motion.section>
-
-      {PROJECTS?.length ? (
-        <motion.section
-          variants={VARIANTS_SECTION}
-          transition={TRANSITION_SECTION}
+    <Section number="05" label="Connect">
+      <p className="max-w-2xl text-lg leading-relaxed text-muted">
+        I&rsquo;m always happy to talk architecture, browser platforms, and
+        developer tools -{' '}
+        <a
+          href={`mailto:${EMAIL}`}
+          className="text-foreground underline decoration-line-strong underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
         >
-          <h3 className="mb-5 text-lg font-medium">Selected Projects</h3>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {PROJECTS.map((project) => (
-              <div key={project.name} className="space-y-2">
-                <div className="relative rounded-2xl bg-zinc-50/40 p-5 ring-1 ring-zinc-200/50 ring-inset dark:bg-zinc-950/40 dark:ring-zinc-800/50">
-                  <ProjectDescription
-                    title={project.name}
-                    details={project.details}
-                  />
-                </div>
-                <div className="px-1">
-                  <a
-                    className="font-base group relative inline-block font-[450] text-zinc-900 dark:text-zinc-50"
-                    href={project.link}
-                    target="_blank"
-                  >
-                    {project.name}
-                    <span className="absolute bottom-0.5 left-0 block h-[1px] w-full max-w-0 bg-zinc-900 transition-all duration-200 group-hover:max-w-full dark:bg-zinc-50"></span>
-                  </a>
-                  <p className="text-base text-zinc-600 dark:text-zinc-400">
-                    {project.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <span className="text-zinc-600 italic dark:text-zinc-500">
-            A lot of projects yet to come!
-          </span>
-        </motion.section>
-      ) : null}
-
-      <motion.section
-        variants={VARIANTS_SECTION}
-        transition={TRANSITION_SECTION}
-      >
-        <h3 className="mb-5 text-lg font-medium">Work Experience</h3>
-        <div className="flex flex-col space-y-2">
-          {WORK_EXPERIENCE.map((job) => (
-            <WorkExperienceCard key={job.id} job={job} />
-          ))}
-        </div>
-      </motion.section>
-
-      <motion.section
-        variants={VARIANTS_SECTION}
-        transition={TRANSITION_SECTION}
-      >
-        <h3 className="mb-3 text-lg font-medium">Blog</h3>
-        <div className="flex flex-col space-y-0">
-          <AnimatedBackground
-            enableHover
-            className="h-full w-full rounded-lg bg-zinc-100 dark:bg-zinc-900/80"
-            transition={{
-              type: 'spring',
-              bounce: 0,
-              duration: 0.2,
-            }}
+          email me
+        </a>
+        , or find me here:
+      </p>
+      <div className="mt-6 flex flex-wrap gap-2">
+        {CONNECT_LINKS.map((link) => (
+          <a
+            key={link.label}
+            href={link.href}
+            target={link.href.startsWith('http') ? '_blank' : undefined}
+            rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+            className="group inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-xs text-muted transition-colors duration-200 hover:border-accent/40 hover:text-foreground"
           >
-            {BLOG_POSTS.map((post) => (
-              <Link
-                key={post.uid}
-                className="-mx-3 rounded-xl px-3 py-3"
-                href={post.link}
-                data-id={post.uid}
-              >
-                <div className="flex flex-col space-y-1">
-                  <h4 className="font-normal dark:text-zinc-100">
-                    {post.title}
-                  </h4>
-                  <p className="text-zinc-500 dark:text-zinc-400">
-                    {post.description}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </AnimatedBackground>
-        </div>
-      </motion.section>
-
-      <motion.section
-        variants={VARIANTS_SECTION}
-        transition={TRANSITION_SECTION}
-      >
-        <h3 className="mb-5 text-lg font-medium">Connect</h3>
-        <p className="mb-5 text-zinc-600 dark:text-zinc-400">
-          Feel free to contact me at{' '}
-          <a className="underline dark:text-zinc-300" href={`mailto:${EMAIL}`}>
-            {EMAIL}
+            <link.icon className="h-3.5 w-3.5" />
+            {link.label}
+            <span className="text-faint transition-colors group-hover:text-accent" aria-hidden="true">
+              ↗
+            </span>
           </a>
-        </p>
-        <div className="flex items-center justify-start space-x-3">
-          {SOCIAL_LINKS.map((link) => (
-            <MagneticSocialLink key={link.label} link={link.link}>
-              {link.label}
-            </MagneticSocialLink>
-          ))}
-        </div>
-      </motion.section>
-    </motion.main>
+        ))}
+      </div>
+    </Section>
+  )
+}
+
+export default function Home() {
+  return (
+    <div className="pb-16">
+      <Hero />
+      <About />
+      <SelectedWork />
+      <WritingPreview />
+      <Experience />
+      <Connect />
+    </div>
   )
 }
