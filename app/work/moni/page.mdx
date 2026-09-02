@@ -1,0 +1,103 @@
+export const metadata = {
+  title: 'moni - a privacy-first, offline expense tracker for iOS',
+  description:
+    'A native SwiftUI + SwiftData expense tracker built around a drag-scrub quick-capture gesture - no backend, no bank linking, and Siri/Shortcuts/SMS automations. Everything stays on device.',
+}
+
+<CaseHeader
+  index="04"
+  context="Personal · Open source"
+  period="2025"
+  title="moni - privacy-first expense tracking for iOS"
+  summary="moni is a SwiftUI + SwiftData expense tracker built around a single idea: logging a purchase should be the fastest thing in the app. Its centerpiece is a drag-scrub + radial category picker that records an expense in about two seconds, and it stays aggressively local - no backend, no bank linking, no network calls."
+  tags={['SwiftUI', 'SwiftData', 'AppIntents', 'iOS 18', 'Regex', 'Swift Testing']}
+/>
+
+<CaseSection n="01" title="Problem">
+  Most expense trackers ask for your bank login or sit behind a cloud account.
+  Both are a poor fit for everyday manual entry: they are slow to open, slow to
+  log, and they inherit the privacy overhead of a server you didn't ask for.
+  The friction is so high that most people simply stop tracking.
+  <CasePull>
+    Most expense trackers ask for your bank login. moni asks for two seconds.
+  </CasePull>
+</CaseSection>
+
+<CaseSection n="02" title="The core interaction">
+  The design bets everything on one gesture. You hold a center button, drag
+  upward through a tactile amount ladder, then drop onto a category:
+  <CaseList
+    marker="→"
+    items={[
+      'Hold - the center action wakes instantly; the screen dims and blurs behind it.',
+      'Scrub - a non-linear amount ladder (10, 20, 50, 100, 200, 500, 1000...5000) climbs with pow(p, 1.35) easing under your thumb, with 0.08s-throttled haptics.',
+      'Drop - releasing opens a radial picker whose AnnularSector shape highlights the nearest category based on distance (hypot <= 96pt).',
+      'Done - the expense is saved. You never fill five fields.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="03" title="Automations">
+  Manual entry is fast in the app, but the fastest input is the one you never
+  type. moni exposes system integrations so expenses can be captured hands-free:
+  <CaseList
+    marker="→"
+    items={[
+      'Siri - say "Add debit in moni 250" or "Add credit in moni 1000" and it logs without opening the app (openAppWhenRun=false).',
+      'Back Tap - assign "Quick Expense" to a double-tap on the back of the iPhone and enter an amount in a system snippet, no app launch needed.',
+      'SMS Import - a Shortcuts Message Automation hands a bank SMS to moni, which parses amount, payee, type, and category locally, then saves to SwiftData.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="04" title="Tech stack">
+  <CaseGrid
+    rows={[
+      { k: 'SwiftUI', v: '100% declarative - matchedGeometryEffect tabs, contentTransition(.numericText()) for live numbers.' },
+      { k: 'SwiftData', v: 'Four @Model types behind a ModelContainer, queried with @Query and #Predicate.' },
+      { k: 'AppIntents', v: 'Six intents with a shared AppShortcutsProvider; ShowsSnippetView and ProvidesDialog for hands-free flow.' },
+      { k: 'Money as Int', v: 'Paise stored as Int via Decimal * 100, avoiding Double precision drift entirely.' },
+      { k: 'NSRegularExpression', v: 'Four amount patterns plus keyword dictionaries for type, payee, and category inference.' },
+      { k: 'No dependencies', v: 'Swift Testing for the domain calculator; zero third-party packages.' },
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="05" title="Architecture">
+  The app follows a feature-sliced layout with a deliberate Domain/Persistence
+  separation. The content view holds live @Query arrays and exposes computed
+  values like activeAccounts and totals; the Domain layer is stateless enums of
+  pure functions (balance math, SMS parsing, formatting); and FinanceStore is
+  the single boundary that AppIntents use to read and write. Keeping the parser
+  and calculator pure made them trivially testable without any UI on the
+  stack.
+</CaseSection>
+
+<CaseSection n="06" title="Challenges while building">
+  <CaseList
+    marker="→"
+    items={[
+      'The amount ladder feels right or it feels dead. Tuning the pow exponent so small amounts scrub slowly and large ones fly was the difference between a demo gesture and a daily-use one.',
+      'Radial picker hit detection. The AnnularSector highlight needed distance-based logic (hypot <= 96pt) so the finger reliably lands on the intended category at release.',
+      'Money as safe math. Using Double for currency introduces drift; switching to Decimal -> Int paise for storage, then formatting back for display, removed a whole class of bugs.',
+      'SMS parsing without a server. Building a regex rule engine (amount, debited/credited, payee extraction with stop-word trimming, category inference) that handles HDFC, ICICI, SBI, and Axis formats is pure pattern-matching resilience.',
+      'No backend - by architecture. The install is the app. There is no server to trust, which means the reliability story is entirely about correct on-device persistence.',
+    ]}
+  />
+</CaseSection>
+
+<CaseSection n="07" title="Result">
+  A production-style iOS app with a testable domain core, five intents wired
+  into the system, and a capture flow measured in seconds rather than fields.
+  The full source, an open MIT license, and the live landing site are linked
+  below.
+</CaseSection>
+
+<CaseSection n="08" title="Links">
+  <CaseRelated
+    items={[
+      { label: 'moni.shrivatsa.dev (live site)', href: 'https://moni.shrivatsa.dev', note: 'product' },
+      { label: 'github.com/vatsa31/moni', href: 'https://github.com/vatsa31/moni', note: 'source' },
+    ]}
+  />
+</CaseSection>

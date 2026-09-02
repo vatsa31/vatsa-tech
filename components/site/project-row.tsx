@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Globe, Github } from 'lucide-react'
 import type { Project } from '@/app/data'
 import { cn } from '@/lib/utils'
 
@@ -19,6 +20,18 @@ export function ProjectRow({ project, className }: { project: Project; className
                 {project.title}
               </h3>
             </Link>
+            {project.site ? (
+              <a
+                href={project.site}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${project.title} live site`}
+                title={`${project.title} live site`}
+                className="shrink-0 text-muted transition-colors duration-200 hover:text-accent"
+              >
+                <Globe className="h-4 w-4" />
+              </a>
+            ) : null}
             <a
               href={project.github}
               target="_blank"
@@ -27,7 +40,7 @@ export function ProjectRow({ project, className }: { project: Project; className
               title={`${project.title} on GitHub`}
               className="shrink-0 text-muted transition-colors duration-200 hover:text-accent"
             >
-              <ArrowIcon className="h-4 w-4" />
+              <Github className="h-4 w-4" />
             </a>
           </div>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
@@ -48,27 +61,5 @@ export function ProjectRow({ project, className }: { project: Project; className
         </div>
       </div>
     </div>
-  )
-}
-
-function ArrowIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      <path
-        d="M3.5 12.5L12.5 3.5M12.5 3.5L5.5 3.5M12.5 3.5L12.5 10.5"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   )
 }
