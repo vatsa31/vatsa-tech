@@ -7,6 +7,7 @@ export type Project = {
   summary: string
   href: string
   github: string
+  site?: string
   meta: string
   tags?: string[]
 }
@@ -20,6 +21,16 @@ export const HERO = {
 }
 
 export const SELECTED_WORK: Project[] = [
+  {
+    repo: 'moni',
+    title: 'moni',
+    summary:
+      'A privacy-first expense tracker for iOS. Log a purchase in ~2 seconds with a drag-scrub gesture, read budgets at a glance, and keep every rupee on-device - no backend, no bank linking.',
+    href: '/work/moni',
+    github: 'https://github.com/vatsa31/moni',
+    site: 'https://moni.shrivatsa.dev',
+    meta: 'SwiftUI · SwiftData · iOS 18',
+  },
   {
     repo: 'usagent',
     title: 'Usagent',
