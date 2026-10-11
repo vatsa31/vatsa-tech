@@ -8,6 +8,14 @@ export type WritingPost = {
 
 export const WRITING_POSTS: WritingPost[] = [
   {
+    slug: 'orchestrating-ai-agents',
+    title: 'My T3 Code Orchestrator: From Request to PR',
+    description:
+      'How I split planning, implementation, and review across models, with deterministic routing and PRs as the human checkpoint.',
+    date: '2026-10-11',
+    status: 'published',
+  },
+  {
     slug: 'react-the-journey',
     title: 'From React Code to Browser: The Journey Simplified',
     description:

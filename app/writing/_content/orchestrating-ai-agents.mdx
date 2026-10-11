@@ -1,0 +1,287 @@
+### The coordination problem
+
+I wanted to start using several AI coding agents on real projects. Before
+doing that, I kept coming back to three questions: which model should do
+which job, how do I keep quality high without reviewing every step, and
+where should I still be the one making the decision?
+
+Giving each agent a task is easy enough. Keeping their work aligned with my
+request, checking what they actually did, and recovering when a model fails
+is where the setup gets interesting.
+
+I built an orchestrator workflow on top of T3 Code's existing tools. It has
+a shared playbook, a deterministic router, and state files for each project.
+The orchestrator dispatches work and tracks progress. It never writes
+product code, settles disputed findings, or merges a PR.
+
+## 1. Separate the rules from the project
+
+The playbook describes the workflow: roles, task states, review gates,
+retry limits, and when to stop for me. It is project-agnostic. A project
+registry supplies the repository path, base branch, verification commands,
+reserved ports, and rules for sensitive paths.
+
+`route.mjs` computes routing and gate decisions. The orchestrator executes
+the result rather than choosing a model from scratch on every turn. If a
+task is missing the tags it needs, it goes back to the planner.
+
+The state lives outside the product repository. An example project looks
+like this:
+
+```text
+projects/widgets/
+  config.md
+  backlog.md
+  runs.jsonl
+  epics/E1-navbar/
+    request.md
+    recon.md
+    plan.md
+    tasks.json
+    plan-review/
+```
+
+`request.md` preserves my request verbatim. `plan.md` holds the design and
+assumptions. `tasks.json` holds dependencies, task states, worker IDs,
+branches, review rounds, and PRs. `plan-review/` keeps the review verdicts,
+and `runs.jsonl` records events across the project.
+
+That matters when a conversation is compacted or a provider fails. The
+orchestrator can re-read the state and inspect an existing worker before
+launching another one. A task ID remembered only in a conversation is too
+easy to lose.
+
+## 2. Give each role a narrow job
+
+I split the workflow into these roles:
+
+<div className="overflow-x-auto">
+  <table>
+    <thead>
+      <tr>
+        <th>Role</th>
+        <th>Responsibility</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Orchestrator</td>
+        <td>Dispatch work, persist state, run gates, and track PRs.</td>
+      </tr>
+      <tr>
+        <td>Recon</td>
+        <td>Explore the repository read-only and report facts.</td>
+      </tr>
+      <tr>
+        <td>Planner</td>
+        <td>
+          Write the spec and task graph, with tier/risk tags and acceptance
+          criteria.
+        </td>
+      </tr>
+      <tr>
+        <td>Plan-reviewer</td>
+        <td>Check the plan against my original request.</td>
+      </tr>
+      <tr>
+        <td>Worker</td>
+        <td>Implement one task in one git worktree, verify, and commit.</td>
+      </tr>
+      <tr>
+        <td>Verifier</td>
+        <td>Project scripts that the orchestrator runs itself.</td>
+      </tr>
+      <tr>
+        <td>Code reviewer</td>
+        <td>
+          Review the diff against acceptance criteria and report findings.
+        </td>
+      </tr>
+      <tr>
+        <td>Judge</td>
+        <td>
+          Resolve disputed findings or decide whether to fix, replan, or
+          escalate.
+        </td>
+      </tr>
+      <tr>
+        <td>PR-writer</td>
+        <td>
+          Turn verification, review results, and assumptions into PR text.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+The orchestrator does not need the strongest model. It needs to follow
+rules, retain IDs, and call tools reliably. Planning and difficult decisions
+get stronger models; recon and mechanical changes can use cheaper ones.
+Verification is scripts with exit codes.
+
+## 3. Route by difficulty and risk
+
+The planner tags each task with a tier: `mechanical`, `routine`, or `hard`.
+It also tags risk: `normal`, `security`, `data`, or `infra`. The router
+combines those tags with the project's path rules.
+
+In my starter assignments, Haiku or Luna handles mechanical work. Luna or
+Grok can handle routine implementation. Sonnet can start on harder work,
+with Opus or GPT-6.1-Sol available for escalation. Planning uses Opus or
+GPT-6.1-Sol, with Astra as a fallback.
+
+These are starting assignments, not a benchmark result. The useful part
+is that they can change without rewriting the workflow.
+
+Risk takes precedence over the cheap route. Security and data tasks go
+straight to stronger workers and additional review. Infrastructure work
+stops for me. Two verification failures or a high-severity review finding
+can trigger escalation rather than repeating the same attempt indefinitely.
+
+### Review must cross model families
+
+My main review rule is **reviewer family must differ from author family**.
+For plans, the plan-reviewer must differ from the planner's family too.
+Opus planning followed by GPT-6.1-Sol plan review is one pairing; switching
+the planner reverses the pairing.
+
+Family belongs to the model, not the tool running it. Claude, OpenAI,
+Gemini, DeepSeek, and xAI are separate families in the router. Running two
+models through different providers does not automatically make their
+review independent.
+
+A property test checks this rule across every non-degraded preset,
+including worker tiers and fallback models. The single-family preset is
+explicitly marked degraded: it can use a different model, but it cannot
+provide cross-family review. A judge from a third family is preferred
+where the configured pool allows it.
+
+Different families can still miss the same bug. This rule gives me another
+perspective; verification and my PR review still matter.
+
+## 4. Review the plan before writing code
+
+Initially, I had a human approval step after every plan. That would make me
+the bottleneck even for ordinary, reversible work. I replaced it with a
+plan-reviewer that reads my saved request, the plan, the task graph, recon
+findings, and project constraints.
+
+The reviewer builds a traceability table in both directions: every request
+clause maps to a task or acceptance criterion, and every task maps back to
+the request. A missing clause means incomplete work. A task without a
+clause may be scope creep.
+
+It also checks that acceptance criteria name concrete tests or commands,
+dependencies make sense, risk tags fit the change, referenced files and
+APIs exist, and the plan respects guardrails. Open questions must appear
+as assumptions or owner decisions.
+
+The `planreview` gate fails closed. An approval with missing or malformed
+traceability does not allow fan-out. The orchestrator follows the gate's
+result mechanically:
+
+- Normal risk with approval and clean traceability can proceed automatically.
+- Security or data risk needs the plan-reviewer and a plan judge.
+- Infrastructure risk or an irreversible owner decision stops for me.
+- Requested changes return to the planner. After two revision rounds, the
+  judge decides; an unresolved plan stops for me.
+
+For example, my navbar request named a logo on the left and a hamburger on
+the right, opening a dropdown with a login button. The reviewer should
+check all of those clauses. It should also catch a planner quietly adding
+authentication implementation when the request only asked for a button.
+
+A placeholder asset or cosmetic default can proceed if it is cheap to
+change. Those choices go into an **"Assumptions (please confirm)"** ledger
+on every PR, with the default taken and how to change it. Auth policy,
+data handling, destructive migrations, and live-environment decisions
+still belong to me.
+
+## 5. Execute in worktrees, then prove the result
+
+Each worker gets one task, a bounded scope, acceptance criteria, and an
+isolated git worktree. Independent tasks can run in parallel when their
+files do not overlap. Dependencies and concurrency caps constrain fan-out.
+
+The worker implements, runs checks, commits, and reports deviations. The
+orchestrator then re-runs the project's verification commands in that
+worktree. **Trust exit codes, not claims.** A worker saying "all checks
+pass" is a report to verify.
+
+After verification comes cross-family code review. Blocking findings go
+back for fixes. Disagreements, contested findings, and security/data work
+go to the judge. Each review round gets a fresh brief carrying previous
+findings and unresolved objections.
+
+Once the gates pass, the workflow opens a PR with the verification results,
+review findings and resolutions, judge verdicts, known gaps, and assumptions.
+That is my checkpoint. The orchestrator never merges.
+
+### Optional Jev classification
+
+I also added an optional Jev classifier through TypeSafe System One. It can
+provide scope and risk signals to the router, including signals in a
+worker's deviations report. Code applies the routing rules; the classifier
+does not get to waive them.
+
+In the packaged CLI, Jev is **off by default**. Shadow mode records its
+signals without changing decisions. Active mode can apply them after
+calibration. It requires separate key setup, and enabled modes send
+allowlisted task/report text and paths to TypeSafe.
+
+I tested clear-cut cases in the prototype, but that is not evidence that
+the classifier is calibrated for real work. Keeping it optional lets the
+core workflow run without it.
+
+## 6. Package the setup so I can move it
+
+I extracted the workflow into `t3-orchestrator`, a private preview CLI. It
+scaffolds the workspace; an agent inside T3 Code executes the playbook.
+The CLI does not authenticate providers or run an epic by itself.
+
+With Node.js 24+, Git, and a GitHub SSH key that has access to the private
+repository, I install it directly from Git:
+
+```bash
+npm install -g 'git+ssh://git@github.com/vatsa31/t3-orchestrator.git#main'
+t3-orchestrator init
+t3-orchestrator check
+```
+
+This does not require publishing to npm. On macOS/Linux, npm's global
+`bin` directory needs to be on `PATH`.
+
+The first interactive version was a long questionnaire. I replaced it with
+a Clack wizard: choose a profile, select model families, then see all role
+assignments together. I can keep the defaults or edit individual roles.
+Model names are searchable, and removing a family adapts incompatible
+assignments while retaining review coverage.
+
+The generated setup includes `CLAUDE.md`, `AGENTS.md`, and `PLAYBOOK.md`,
+a project registry, and routing configuration. Its default home is
+`~/.config/t3-orchestrator`, honoring an absolute `XDG_CONFIG_HOME` or an
+`ORCHESTRATOR_HOME` override. I add its `workspace/` directory as the
+coordinator project in T3 Code and register target projects manually.
+
+The bundled model list is unverified. An `orchestrator_capabilities`
+snapshot can restrict setup choices to models advertised by a machine,
+but advertised availability still does not prove successful execution.
+An automated `doctor` and broader live-epic validation remain unfinished.
+I also exclude this config home from dotfile sync because it holds task
+history and optional credentials.
+
+## What I want from this setup
+
+The workflow moves my routine check from approving every plan to reviewing
+the resulting PR. It preserves the request, tests the plan against it,
+checks the implementation, and tells me which assumptions it made.
+
+The routing and gate tests cover those rules. They do not prove that every
+model will follow instructions or that every project has adequate tests.
+Read-only and never-merge instructions are not a security boundary; repository
+permissions and branch protection need to enforce the merge checkpoint.
+
+I now have a concrete setup to exercise on real projects. The next evidence
+I care about is how often plans need revision, workers need escalation, and
+I need to change an assumption at the PR. Those outcomes will tell me which
+parts of the workflow actually deserve more autonomy.
