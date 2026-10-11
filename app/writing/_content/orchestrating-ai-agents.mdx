@@ -14,6 +14,8 @@ a shared playbook, a deterministic router, and state files for each project.
 The orchestrator dispatches work and tracks progress. It never writes
 product code, settles disputed findings, or merges a PR.
 
+<OrchestratorWorkflowDiagram />
+
 ## 1. Separate the rules from the project
 
 The playbook describes the workflow: roles, task states, review gates,
@@ -138,6 +140,8 @@ straight to stronger workers and additional review. Infrastructure work
 stops for me. Two verification failures or a high-severity review finding
 can trigger escalation rather than repeating the same attempt indefinitely.
 
+<OrchestratorRoutingDiagram />
+
 ### Review must cross model families
 
 My main review rule is **reviewer family must differ from author family**.
@@ -185,6 +189,8 @@ result mechanically:
 - Infrastructure risk or an irreversible owner decision stops for me.
 - Requested changes return to the planner. After two revision rounds, the
   judge decides; an unresolved plan stops for me.
+
+<OrchestratorPlanGateDiagram />
 
 For example, my navbar request named a logo on the left and a hamburger on
 the right, opening a dropdown with a login button. The reviewer should
