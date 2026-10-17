@@ -16,6 +16,11 @@ import { AmbientRecoveryDiagram } from '@/components/diagram/figures/ambient-rec
 import { SupportPlatformDiagram } from '@/components/diagram/figures/support-platform'
 import { UsagentArchitectureDiagram } from '@/components/diagram/figures/usagent-architecture'
 import { UsagentMock } from '@/components/site/usagent-mock'
+import {
+  OrchestratorWorkflowDiagram,
+  OrchestratorRoutingDiagram,
+  OrchestratorPlanGateDiagram,
+} from '@/components/diagram/figures/orchestrator-flow'
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -32,7 +37,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       return (
         <figure>
           <img src={src} alt={alt} className="rounded-xl" />
-          <figcaption className="mt-2 text-center font-mono text-xs text-muted">
+          <figcaption className="text-muted mt-2 text-center font-mono text-xs">
             {caption}
           </figcaption>
         </figure>
@@ -56,5 +61,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     SupportPlatformDiagram,
     UsagentArchitectureDiagram,
     UsagentMock,
+    OrchestratorWorkflowDiagram,
+    OrchestratorRoutingDiagram,
+    OrchestratorPlanGateDiagram,
   }
 }

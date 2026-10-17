@@ -1,13 +1,7 @@
 import { useId, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-function ArrowMarker({
-  id,
-  accent,
-}: {
-  id: string
-  accent?: boolean
-}) {
+function ArrowMarker({ id, accent }: { id: string; accent?: boolean }) {
   return (
     <defs>
       <marker
@@ -34,6 +28,7 @@ type DiagramProps = {
   caption?: string
   children: ReactNode
   className?: string
+  minWidth?: number
 }
 
 export function Diagram({
@@ -42,22 +37,37 @@ export function Diagram({
   caption,
   children,
   className,
+  minWidth,
 }: DiagramProps) {
   return (
     <figure className={cn('my-10', className)}>
-      <div className="dot-grid relative overflow-hidden rounded-xl border border-line">
+      <div
+        className={cn(
+          'dot-grid border-line relative rounded-xl border',
+          minWidth ? 'overflow-x-auto' : 'overflow-hidden',
+        )}
+        tabIndex={minWidth ? 0 : undefined}
+        role={minWidth ? 'region' : undefined}
+        aria-label={minWidth ? 'Scrollable diagram' : undefined}
+      >
         <svg
           viewBox={viewBox}
           role="img"
           aria-label={label}
           className="block h-auto w-full"
           preserveAspectRatio="xMidYMid meet"
+          style={minWidth ? { minWidth } : undefined}
         >
           {children}
         </svg>
       </div>
+      {minWidth ? (
+        <p className="text-muted mt-2 font-mono text-[11px] sm:hidden">
+          Scroll horizontally to explore the diagram.
+        </p>
+      ) : null}
       {caption ? (
-        <figcaption className="mt-3 flex items-baseline gap-2 font-mono text-[11px] leading-relaxed text-muted">
+        <figcaption className="text-muted mt-3 flex items-baseline gap-2 font-mono text-[11px] leading-relaxed">
           <span className="text-accent" aria-hidden="true">
             ⬒
           </span>
@@ -166,9 +176,23 @@ export function DNode({
         strokeWidth={accent ? 1.4 : 1}
       />
       {accent ? (
-        <rect x={x} y={y + h / 2 - 9} width={2.5} height={18} rx={1.25} className="fill-accent" />
+        <rect
+          x={x}
+          y={y + h / 2 - 9}
+          width={2.5}
+          height={18}
+          rx={1.25}
+          className="fill-accent"
+        />
       ) : null}
-      <CenterText x={x + (accent ? 2 : 0)} y={y} w={w - (accent ? 4 : 0)} h={h} label={label} sub={sub} />
+      <CenterText
+        x={x + (accent ? 2 : 0)}
+        y={y}
+        w={w - (accent ? 4 : 0)}
+        h={h}
+        label={label}
+        sub={sub}
+      />
     </g>
   )
 }
@@ -200,7 +224,9 @@ export function DEdge({
 }: DEdgeProps) {
   const id = useId()
   const needsAccent = accent ?? flow
-  const markerId = arrow ? `${id}-${needsAccent ? 'accent' : 'arrow'}` : undefined
+  const markerId = arrow
+    ? `${id}-${needsAccent ? 'accent' : 'arrow'}`
+    : undefined
 
   return (
     <g className={cn('font-mono', className)}>
@@ -280,7 +306,17 @@ type DBoxProps = {
   children?: ReactNode
 }
 
-export function DBox({ x, y, w, h, label, labelX, labelY, dashed, children }: DBoxProps) {
+export function DBox({
+  x,
+  y,
+  w,
+  h,
+  label,
+  labelX,
+  labelY,
+  dashed,
+  children,
+}: DBoxProps) {
   return (
     <g>
       <rect
