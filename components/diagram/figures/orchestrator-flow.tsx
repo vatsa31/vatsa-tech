@@ -1,5 +1,9 @@
 import { Diagram, DNode, DEdge, DBox, DLabel } from '..'
 
+// Paint a theme-aware halo behind branch conditions so labels stay legible.
+const branchLabelClass =
+  'stroke-paper [paint-order:stroke] [stroke-linejoin:round] [stroke-width:4px]'
+
 export function OrchestratorWorkflowDiagram() {
   return (
     <Diagram
@@ -313,7 +317,7 @@ export function OrchestratorPlanGateDiagram() {
         accent
       />
       <DEdge d="M220,243 H125 V318" />
-      <DLabel x={123} y={295} anchor="middle">
+      <DLabel className={branchLabelClass} x={123} y={295} anchor="middle">
         changes / incomplete mapping
       </DLabel>
       <DNode
@@ -326,7 +330,7 @@ export function OrchestratorPlanGateDiagram() {
       />
       <DEdge d="M40,347 H24 V12 H335 V28" />
       <DEdge d="M320,270 V318" />
-      <DLabel x={332} y={295}>
+      <DLabel className={branchLabelClass} x={332} y={295}>
         normal + clean approval
       </DLabel>
       <DNode
@@ -339,10 +343,10 @@ export function OrchestratorPlanGateDiagram() {
         accent
       />
       <DEdge d="M420,243 H540 V318" />
-      <DLabel x={541} y={284} anchor="middle">
+      <DLabel className={branchLabelClass} x={541} y={284} anchor="middle">
         security/data approval
       </DLabel>
-      <DLabel x={541} y={301} anchor="middle">
+      <DLabel className={branchLabelClass} x={541} y={301} anchor="middle">
         or revisions exhausted
       </DLabel>
       <DNode
@@ -354,15 +358,15 @@ export function OrchestratorPlanGateDiagram() {
         sub="accept or resolve"
       />
       <DEdge d="M455,347 H405" />
-      <DLabel x={431} y={336} anchor="middle">
+      <DLabel className={branchLabelClass} x={431} y={336} anchor="middle">
         accept
       </DLabel>
       <DEdge d="M540,376 V430 H430 V476" />
-      <DLabel x={540} y={405} anchor="middle">
+      <DLabel className={branchLabelClass} x={540} y={405} anchor="middle">
         unresolved / escalate
       </DLabel>
       <DEdge d="M420,243 H633 V455 H430 V476" />
-      <DLabel x={620} y={441} anchor="end">
+      <DLabel className={branchLabelClass} x={620} y={441} anchor="end">
         infra / irreversible decision
       </DLabel>
       <DNode
